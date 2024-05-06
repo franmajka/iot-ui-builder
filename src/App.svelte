@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Counter from './components/Counter.svelte';
+	import Scene from './components/Scene.svelte';
 </script>
 
 <main class="h-screen flex justify-center items-center">
-	<Counter />
+	<Scene />
 </main>
