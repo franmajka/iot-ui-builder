@@ -1,61 +1,68 @@
 <script lang="ts">
-  import Moveable, { type OnDrag, type OnDragStart } from "svelte-moveable";
-	import type { MouseEventHandler } from 'svelte/elements';
-  import * as scene from "src/stores/scene";
+  import * as framesStore from "src/stores/frames";
+	import { derived } from 'svelte/store';
+	import { Layer, Stage, Text, Transformer } from 'svelte-konva';
+	import type { Transformer as TransformerType } from 'konva/lib/shapes/Transformer';
+	import Frame from './Frame.svelte';
 
-  let moveable: Moveable;
-  let container: HTMLElement;
-  let target: HTMLElement;
+  let frames = derived(framesStore, $frames => Object.values($frames));
+  let selectedFrameId: number | null = null;
 
-  let childrenCount = 2;
-  $: frame = scene.getFrame(target);
+  let transformer: TransformerType;
 
-  const onMouseDown: MouseEventHandler<HTMLElement> = e => {
-    target = e.currentTarget;
-    scene.addFrame(target);
-
-    setTimeout(() => {
-      moveable.dragStart(e);
-    });
+  const handleAddFrameClick = () => {
+    framesStore.addFrame();
+    setTimeout(() => transformer?.moveToTop());
   }
 
-  const onDragStart = (e: OnDragStart) => {
-    console.log("onDragStart", e);
-    e.set($frame?.translate || [0, 0]);
+  const updateTransformer = () => {
+    if (!transformer) return;
+
+    const stage = transformer.getStage()!;
+    const selectedNode = stage.findOne(`#${selectedFrameId}`);
+
+    if (selectedNode) {
+      transformer.nodes([selectedNode]);
+    } else {
+      transformer.nodes([]);
+    }
   }
 
-  const onDrag = (e: OnDrag) => {
-    console.log("onDrag", e);
-    scene.updateFrame(target, {
-      translate: e.beforeTranslate as [number, number],
-    })
-    e.target.style.transform = `translate3d(${$frame!.translate[0]}px, ${$frame!.translate[1]}px, 0)`
-  }
+  const handleStageClick = ({ detail: e }) => {
+    if (e.target === e.target.getStage()) {
+      selectedFrameId = null;
+      updateTransformer();
+      return;
+    }
 
-  const onAddFrame = () => {
-    const child = document.createElement("div");
-    child.textContent = `Target ${++childrenCount}`;
-    child.classList.add("p-4");
-    child.addEventListener("mousedown", onMouseDown);
-    container.appendChild(child);
+    if (e.target.getParent().className === "Transformer") return;
 
-    scene.addFrame(child);
-    target = child;
+    const id = e.target.id();
+    console.log(id);
+    selectedFrameId = $framesStore[id] ? id : null;
+    updateTransformer();
   }
 </script>
 
-<div class="relative w-100 h-100" bind:this={container}>
-  <div class="p-4" on:mousedown={onMouseDown}>Target 1</div>
-  <div class="p-4" on:mousedown={onMouseDown}>Target 2</div>
-</div>
-<Moveable
-  bind:this={moveable}
-  target={target}
+<Stage
+  config={{ width: window.innerWidth, height: window.innerHeight }}
+  on:click={handleStageClick}
+>
+  <Layer>
+    {#each $frames as frame (frame.id)}
+      <Frame {frame} />
+    {/each}
 
-  draggable
-  on:dragStart={({ detail }) => onDragStart(detail)}
-  on:drag={({ detail }) => onDrag(detail)}
-  resizable
-/>
-
-<button on:click={onAddFrame}>Add Frame</button>
+    <Text
+      config={{
+        x: 100,
+        y: 100,
+        text: 'Add Frame!',
+        fontSize: 30,
+        fill: 'black',
+      }}
+      on:click={handleAddFrameClick}
+    />
+    <Transformer bind:handle={transformer} />
+  </Layer>
+</Stage>

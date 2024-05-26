@@ -1,6 +1,12 @@
+import type { FrameType } from 'src/enums/frame-type';
+
 export type Frame = {
-  translate: [number, number];
+  id: number;
+  type: FrameType;
+  x: number;
+  y: number;
   width: number;
   height: number;
+  backgroundColor: string;
   parent?: HTMLElement | null;
 }
