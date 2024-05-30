@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Tooltip } from 'flowbite-svelte';
-	import type { IconLabel } from 'src/types/property-config';
-	import Fa from 'svelte-fa';
+  import { Tooltip } from 'flowbite-svelte';
+  import type { IconLabel } from 'src/types/property-config';
+  import Fa from 'svelte-fa';
 
   export let label: string | IconLabel;
 </script>
@@ -33,5 +33,5 @@
 </label>
 
 {#if typeof label === 'object'}
-  <Tooltip class='ring-0'>{label.tooltip}</Tooltip>
+  <Tooltip class="ring-0">{label.tooltip}</Tooltip>
 {/if}

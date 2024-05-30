@@ -14,12 +14,12 @@
   const handleDragStart = () => {
     handle.moveToTop();
     handle.getStage()!.findOne('#transformer')!.moveToTop();
-  }
+  };
 
   const handleDrag = debounce(({ detail: e }: KonvaDragTransformEvent) => {
     framesStore.updateFrame(frame.id, {
       x: e.target.x(),
-      y: e.target.y(),
+      y: e.target.y()
     });
   }, 0);
 
@@ -29,30 +29,21 @@
       y: e.target.y(),
       width: e.target.width() * e.target.scaleX(),
       height: e.target.height() * e.target.scaleY(),
-      rotation: e.target.rotation(),
+      rotation: e.target.rotation()
     });
 
     e.target.scaleX(1);
     e.target.scaleY(1);
   }, 0);
 
-  const handleGuard = <T extends FrameType>(_: T, handle: FrameKonvaMap[FrameType]): handle is FrameKonvaMap[T] => true;
+  const handleGuard = <T extends FrameType>(
+    _: T,
+    handle: FrameKonvaMap[FrameType]
+  ): handle is FrameKonvaMap[T] => true;
 </script>
 
 {#if frame.type === FrameType.Rectangle && handleGuard(frame.type, handle)}
-  <FrameRect
-    bind:handle={handle}
-    frame={frame}
-    handleDragStart={handleDragStart}
-    handleDrag={handleDrag}
-    handleTransform={handleTransform}
-  />
+  <FrameRect bind:handle {frame} {handleDragStart} {handleDrag} {handleTransform} />
 {:else if frame.type === FrameType.Image && handleGuard(frame.type, handle)}
-  <FrameImage
-    bind:handle={handle}
-    frame={frame}
-    handleDragStart={handleDragStart}
-    handleDrag={handleDrag}
-    handleTransform={handleTransform}
-  />
+  <FrameImage bind:handle {frame} {handleDragStart} {handleDrag} {handleTransform} />
 {/if}

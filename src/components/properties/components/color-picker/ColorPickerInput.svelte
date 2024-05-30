@@ -1,21 +1,21 @@
 <script lang="ts">
-	import type { FocusEventHandler } from 'svelte/elements';
+  import type { FocusEventHandler } from 'svelte/elements';
 
-	export let labelElement: HTMLLabelElement;
+  export let labelElement: HTMLLabelElement;
 
-	export let hex: string;
+  export let hex: string;
 
-	export let label: string;
+  export let label: string;
 
-	export let name: string | undefined = undefined;
+  export let name: string | undefined = undefined;
 
-	export let isOpen: boolean;
+  export let isOpen: boolean;
 
-	function noop() {
-		/* prevent browser color picker from opening unless javascript is broken */
-	}
+  function noop() {
+    /* prevent browser color picker from opening unless javascript is broken */
+  }
 
-  const handleFocus: FocusEventHandler<HTMLInputElement> = e => e.currentTarget.select();
+  const handleFocus: FocusEventHandler<HTMLInputElement> = (e) => e.currentTarget.select();
 </script>
 
 <label
@@ -66,45 +66,45 @@
 </label>
 
 <style>
-	.container {
-		position: relative;
-		display: block;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: var(--input-size, 25px);
-	}
+  .container {
+    position: relative;
+    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--input-size, 25px);
+  }
 
   input[type='text'] {
     font-family: monospace;
   }
 
-	input[type='color'] {
-		margin: 0;
-		padding: 0;
-		border: none;
-		width: 1px;
-		height: 1px;
-		flex-shrink: 0;
-		opacity: 0;
-	}
+  input[type='color'] {
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 1px;
+    height: 1px;
+    flex-shrink: 0;
+    opacity: 0;
+  }
 
-	.alpha {
-		clip-path: circle(50%);
-		background: var(--alpha-grid-bg);
-	}
+  .alpha {
+    clip-path: circle(50%);
+    background: var(--alpha-grid-bg);
+  }
 
-	.alpha,
-	.color {
-		position: absolute;
-		width: var(--input-size, 25px);
-		height: var(--input-size, 25px);
-		border-radius: 50%;
-		user-select: none;
-	}
+  .alpha,
+  .color {
+    position: absolute;
+    width: var(--input-size, 25px);
+    height: var(--input-size, 25px);
+    border-radius: 50%;
+    user-select: none;
+  }
 
-	input[type='color']:focus-visible ~ .color {
-		outline: 2px solid var(--focus-color, red);
-		outline-offset: 2px;
-	}
+  input[type='color']:focus-visible ~ .color {
+    outline: 2px solid var(--focus-color, red);
+    outline-offset: 2px;
+  }
 </style>

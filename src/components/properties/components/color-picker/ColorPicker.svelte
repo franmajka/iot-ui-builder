@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { FrameKeys } from 'src/types/frame';
-	import { type ComponentEvents } from 'svelte';
-	import ColorPicker from 'svelte-awesome-color-picker';
-	import ColorPickerWrapper from './ColorPickerWrapper.svelte';
-	import ColorPickerInput from './ColorPickerInput.svelte';
+  import type { FrameKeys } from 'src/types/frame';
+  import { type ComponentEvents } from 'svelte';
+  import ColorPicker from 'svelte-awesome-color-picker';
+  import ColorPickerWrapper from './ColorPickerWrapper.svelte';
+  import ColorPickerInput from './ColorPickerInput.svelte';
 
   export let value: string;
   export let label: string;
@@ -14,7 +14,7 @@
 <ColorPicker
   components={{ wrapper: ColorPickerWrapper, input: ColorPickerInput }}
   hex={value}
-  label={label}
+  {label}
   name={propertyName}
   on:input={handleColorChange}
 />

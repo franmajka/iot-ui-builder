@@ -1,6 +1,6 @@
 import { FrameType } from 'src/enums/frame-type';
 import type { Frame } from 'src/types/frame';
-import placeholder from 'src/assets/placeholder.png'
+import placeholder from 'src/assets/placeholder.png';
 
 export const SHARED_FRAME_PROPS = {
   id: 0,
@@ -18,13 +18,13 @@ export const DEFAULT_RECT_FRAME: Frame<FrameType.Rectangle> = {
   type: FrameType.Rectangle,
   backgroundColor: '#ff0000',
   textContent: ''
-}
+};
 
 export const DEFAULT_IMAGE_FRAME: Frame<FrameType.Image> = {
   ...SHARED_FRAME_PROPS,
   type: FrameType.Image,
   src: placeholder
-}
+};
 
 export const defaultFrameMap = {
   [FrameType.Rectangle]: DEFAULT_RECT_FRAME,

@@ -5,11 +5,11 @@ import type { KeyOf } from './utils';
 export type RectangleFrame = {
   backgroundColor: string;
   textContent: string;
-}
+};
 
 export type ImageFrame = {
   src: string;
-}
+};
 
 type FrameTypeMap = {
   [FrameType.Rectangle]: RectangleFrame;

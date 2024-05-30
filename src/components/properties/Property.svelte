@@ -6,12 +6,12 @@
     _Frame extends FrameT = FrameByKey<Key>,
   "
 >
-	import type { KeyOf } from 'src/types/utils';
-	import type { ChangeEventHandler, FocusEventHandler } from 'svelte/elements';
-	import type { FrameByKey, FrameT } from 'src/types/frame';
-  import { framesStore } from 'src/stores/frames'
-	import type { PropertyConfig, SupportedTypes } from 'src/types/property-config';
-	import PropertyLabel from './PropertyLabel.svelte';
+  import type { KeyOf } from 'src/types/utils';
+  import type { ChangeEventHandler, FocusEventHandler } from 'svelte/elements';
+  import type { FrameByKey, FrameT } from 'src/types/frame';
+  import { framesStore } from 'src/stores/frames';
+  import type { PropertyConfig, SupportedTypes } from 'src/types/property-config';
+  import PropertyLabel from './PropertyLabel.svelte';
   import ColorPicker from './components/color-picker/ColorPicker.svelte';
 
   $: ({
@@ -23,21 +23,21 @@
     selectedFrame,
     className = '',
     ...restProps
-  } = $$props as PropertyConfig<Key, Type, _Frame>)
+  } = $$props as PropertyConfig<Key, Type, _Frame>);
 
   $: value = mapDisplayValue(selectedFrame[propertyName]);
 
-  const handlePropertyUpdate: ChangeEventHandler<HTMLInputElement> = e => {
+  const handlePropertyUpdate: ChangeEventHandler<HTMLInputElement> = (e) => {
     if (!selectedFrame) return;
-    framesStore.updateFrame(selectedFrame.id, { [propertyName]: mapValue(e.currentTarget.value) })
-  }
+    framesStore.updateFrame(selectedFrame.id, { [propertyName]: mapValue(e.currentTarget.value) });
+  };
 
   const handleColorChange = (e: CustomEvent<{ hex?: string }>) => {
     if (!selectedFrame) return;
     framesStore.updateFrame(selectedFrame.id, { [propertyName]: e.detail.hex });
-  }
+  };
 
-  const handleFocus: FocusEventHandler<HTMLInputElement> = e => e.currentTarget.select();
+  const handleFocus: FocusEventHandler<HTMLInputElement> = (e) => e.currentTarget.select();
 </script>
 
 {#if type === 'color' && typeof label === 'string'}
@@ -61,8 +61,6 @@
     </div>
   </PropertyLabel>
 {/if}
-
-
 
 <style>
   .wrapper {

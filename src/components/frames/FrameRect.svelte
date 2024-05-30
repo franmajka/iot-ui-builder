@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type Konva from 'konva';
-	import { Rect, Text, type KonvaDragTransformEvent } from 'svelte-konva';
-	import type { FrameType } from 'src/enums/frame-type';
-	import type { Frame } from 'src/types/frame';
+  import type Konva from 'konva';
+  import { Rect, Text, type KonvaDragTransformEvent } from 'svelte-konva';
+  import type { FrameType } from 'src/enums/frame-type';
+  import type { Frame } from 'src/types/frame';
 
-  export let frame: Frame<FrameType.Rectangle>
+  export let frame: Frame<FrameType.Rectangle>;
   export let handle: Konva.Rect;
 
   export let handleDragStart: (e: KonvaDragTransformEvent) => void;
@@ -13,7 +13,7 @@
 </script>
 
 <Rect
-  bind:handle={handle}
+  bind:handle
   config={{
     id: frame.id.toString(),
     x: frame.x,
@@ -23,7 +23,7 @@
     fill: frame.backgroundColor,
     rotation: frame.rotation,
     cornerRadius: frame.borderRadius,
-    draggable: true,
+    draggable: true
   }}
   on:dragstart={handleDragStart}
   on:dragmove={handleDrag}
@@ -42,7 +42,7 @@
       width: frame.width,
       height: frame.height,
       align: 'center',
-      verticalAlign: 'middle',
+      verticalAlign: 'middle'
     }}
   />
 {/if}

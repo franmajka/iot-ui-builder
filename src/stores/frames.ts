@@ -12,11 +12,11 @@ const createFramesStore = () => {
   const addFrame = <Type extends FrameType = FrameType>(frame: Partial<FrameByType<Type>> = {}) => {
     const id = idGenerator.next().value!;
 
-    update(frames => {
+    update((frames) => {
       frames[id] = {
-        ...(defaultFrameMap[frame.type || FrameType.Rectangle]),
+        ...defaultFrameMap[frame.type || FrameType.Rectangle],
         ...frame,
-        id,
+        id
       };
 
       return frames;
@@ -25,8 +25,11 @@ const createFramesStore = () => {
     return id;
   };
 
-  const updateFrame = <Type extends FrameType = FrameType>(id: number, frame: Partial<FrameByType<Type>>) => {
-    update(frames => {
+  const updateFrame = <Type extends FrameType = FrameType>(
+    id: number,
+    frame: Partial<FrameByType<Type>>
+  ) => {
+    update((frames) => {
       if (!frames[id]) {
         return frames;
       }
@@ -38,19 +41,20 @@ const createFramesStore = () => {
 
       return frames;
     });
-  }
+  };
 
-  const removeFrame = (id: number) => update(frames => {
-    delete frames[id];
-    return frames;
-  });
+  const removeFrame = (id: number) =>
+    update((frames) => {
+      delete frames[id];
+      return frames;
+    });
 
   return {
     subscribe,
     addFrame,
     updateFrame,
-    removeFrame,
+    removeFrame
   };
-}
+};
 
 export const framesStore = createFramesStore();
