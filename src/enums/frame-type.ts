@@ -1,4 +1,4 @@
 export enum FrameType {
   Rectangle = 'rectangle',
-  Text = 'text',
+  Image = 'image',
 };

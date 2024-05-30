@@ -1,37 +1,56 @@
 import { writable } from 'svelte/store';
-import { DEFAULT_FRAME } from 'src/constants/default-frame';
+import { defaultFrameMap } from 'src/constants/default-frame';
 import { getIdGenerator } from 'src/utils/get-id-generator';
-import type { Frame } from 'src/types/frame';
+import type { FrameByType, FrameT } from 'src/types/frame';
+import { FrameType } from 'src/enums/frame-type';
 
-const { subscribe, update } = writable<Record<number, Frame>>({});
+const createFramesStore = () => {
+  const { subscribe, update } = writable<Record<number, FrameT>>({});
 
-const idGenerator = getIdGenerator();
+  const idGenerator = getIdGenerator();
 
-const addFrame = (frame: Partial<Frame> = {}) => update(scene => {
-  const id = idGenerator.next().value!;
-  scene[id] = {
-    ...DEFAULT_FRAME,
-    ...frame,
-    id,
+  const addFrame = <Type extends FrameType = FrameType>(frame: Partial<FrameByType<Type>> = {}) => {
+    const id = idGenerator.next().value!;
+
+    update(frames => {
+      frames[id] = {
+        ...(defaultFrameMap[frame.type || FrameType.Rectangle]),
+        ...frame,
+        id,
+      };
+
+      return frames;
+    });
+
+    return id;
   };
 
-  return scene;
-});
+  const updateFrame = <Type extends FrameType = FrameType>(id: number, frame: Partial<FrameByType<Type>>) => {
+    update(frames => {
+      if (!frames[id]) {
+        return frames;
+      }
 
-const updateFrame = (id: number, frame: Partial<Frame>) => {
-  update(scene => {
-    if (!scene[id]) {
-      return scene;
-    }
+      frames[id] = {
+        ...frames[id],
+        ...frame
+      };
 
-    scene[id] = {
-      ...scene[id],
-      ...frame
-    };
+      return frames;
+    });
+  }
 
-    return scene;
+  const removeFrame = (id: number) => update(frames => {
+    delete frames[id];
+    return frames;
   });
+
+  return {
+    subscribe,
+    addFrame,
+    updateFrame,
+    removeFrame,
+  };
 }
 
-
-export { subscribe, addFrame, updateFrame };
+export const framesStore = createFramesStore();
