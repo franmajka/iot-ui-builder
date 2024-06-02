@@ -4,12 +4,15 @@
   import Fa from 'svelte-fa';
 
   export let label: string | IconLabel;
+  export let isVertical: boolean = false;
+
+  $: className = isVertical ? 'flex-col w-full' : 'items-center';
 </script>
 
 <label
-  class="
+  class={`
     flex
-    items-center
+    ${className}
     py-1
     px-2
     my-2
@@ -20,8 +23,7 @@
     hover:shadow-center-lg
     hover:shadow-blue-300
     rounded-xl
-    flex-wrap
-  "
+  `}
 >
   {#if typeof label === 'string'}
     {label}

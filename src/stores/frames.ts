@@ -4,8 +4,13 @@ import { getIdGenerator } from 'src/utils/get-id-generator';
 import type { FrameByType, FrameT } from 'src/types/frame';
 import { FrameType } from 'src/enums/frame-type';
 
+type FrameHierarchy = {
+  [id: number]: FrameHierarchy;
+};
+
 const createFramesStore = () => {
   const { subscribe, update } = writable<Record<number, FrameT>>({});
+  const { subscribe: subscribeHierarchy, update: updateHierarchy } = writable<FrameHierarchy>({});
 
   const idGenerator = getIdGenerator();
 
@@ -18,6 +23,23 @@ const createFramesStore = () => {
         ...frame,
         id
       };
+
+      updateHierarchy((hierarchy) => {
+        const parents: number[] = [];
+        let currentParent = frame.parent;
+        while (currentParent) {
+          parents.push(currentParent);
+          currentParent = frames[currentParent].parent;
+        }
+
+        const parentHierarchy = parents.reduceRight(
+          (currentHierarchy, parent) => currentHierarchy[parent],
+          hierarchy
+        );
+        parentHierarchy[id] = {};
+
+        return hierarchy;
+      });
 
       return frames;
     });
@@ -53,7 +75,8 @@ const createFramesStore = () => {
     subscribe,
     addFrame,
     updateFrame,
-    removeFrame
+    removeFrame,
+    hierarchy: { subscribe: subscribeHierarchy }
   };
 };
 

@@ -9,32 +9,41 @@
   import type { KeyOf } from 'src/types/utils';
   import type { ChangeEventHandler, FocusEventHandler } from 'svelte/elements';
   import type { FrameByKey, FrameT } from 'src/types/frame';
+  import { sceneStore } from 'src/stores/scene';
   import { framesStore } from 'src/stores/frames';
   import type { PropertyConfig, SupportedTypes } from 'src/types/property-config';
   import PropertyLabel from './PropertyLabel.svelte';
   import ColorPicker from './components/color-picker/ColorPicker.svelte';
+  import SegmentedControl from './components/segmented-control/SegmentedControl.svelte';
+
+  let { selectedFrameId } = sceneStore;
 
   $: ({
     type,
     propertyName,
     label,
+    options,
     mapValue,
-    mapDisplayValue,
-    selectedFrame,
+    mapDisplayValue = (value: _Frame[Key]) => value && value.toString(),
     className = '',
     ...restProps
   } = $$props as PropertyConfig<Key, Type, _Frame>);
 
-  $: value = mapDisplayValue(selectedFrame[propertyName]);
+  $: rawValue = ($framesStore[$selectedFrameId!] as _Frame)?.[propertyName];
+  $: value = mapDisplayValue(rawValue);
 
-  const handlePropertyUpdate: ChangeEventHandler<HTMLInputElement> = (e) => {
-    if (!selectedFrame) return;
-    framesStore.updateFrame(selectedFrame.id, { [propertyName]: mapValue(e.currentTarget.value) });
+  const setValue = (value: _Frame[Key]) => {
+    if (!$selectedFrameId) return;
+    framesStore.updateFrame($selectedFrameId, { [propertyName]: value });
+  };
+
+  const handlePropertyUpdate: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
+    setValue(mapValue(e.currentTarget.value));
   };
 
   const handleColorChange = (e: CustomEvent<{ hex?: string }>) => {
-    if (!selectedFrame) return;
-    framesStore.updateFrame(selectedFrame.id, { [propertyName]: e.detail.hex });
+    if (!$selectedFrameId) return;
+    framesStore.updateFrame($selectedFrameId, { [propertyName]: e.detail.hex });
   };
 
   const handleFocus: FocusEventHandler<HTMLInputElement> = (e) => e.currentTarget.select();
@@ -44,6 +53,20 @@
   <div class="basis-full mt-2">
     <ColorPicker {value} {label} {propertyName} {handleColorChange} />
   </div>
+{:else if type === 'textarea'}
+  <PropertyLabel {label} isVertical>
+    <textarea
+      {value}
+      {...restProps}
+      id={propertyName}
+      placeholder="Type here..."
+      name={propertyName}
+      on:change={handlePropertyUpdate}
+      class={`bg-transparent focus:ring-0 focus:border-none border-none overflow-hidden ${className}`}
+    />
+  </PropertyLabel>
+{:else if type === 'segmented-control' && options}
+  <SegmentedControl {options} value={rawValue} {setValue} {className} />
 {:else}
   <PropertyLabel {label}>
     <div class={`${propertyName} wrapper inline-block`}>
@@ -74,10 +97,5 @@
     top: 4px;
     right: 4px;
     content: '°';
-  }
-  .wrapper.borderRadius::after {
-    bottom: 8px;
-    right: -8px;
-    content: 'px';
   }
 </style>

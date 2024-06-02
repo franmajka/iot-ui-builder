@@ -2,19 +2,12 @@
   import { debounce } from 'lodash';
   import { type KonvaDragTransformEvent } from 'svelte-konva';
   import { FrameType } from 'src/enums/frame-type';
-  import type { FrameByType, FrameKonvaMap } from 'src/types/frame';
+  import type { FrameByType } from 'src/types/frame';
   import { framesStore } from 'src/stores/frames';
   import FrameRect from './FrameRect.svelte';
   import FrameImage from './FrameImage.svelte';
 
   export let frame: FrameByType<Type>;
-
-  let handle: FrameKonvaMap[Type];
-
-  const handleDragStart = () => {
-    handle.moveToTop();
-    handle.getStage()!.findOne('#transformer')!.moveToTop();
-  };
 
   const handleDrag = debounce(({ detail: e }: KonvaDragTransformEvent) => {
     framesStore.updateFrame(frame.id, {
@@ -35,15 +28,10 @@
     e.target.scaleX(1);
     e.target.scaleY(1);
   }, 0);
-
-  const handleGuard = <T extends FrameType>(
-    _: T,
-    handle: FrameKonvaMap[FrameType]
-  ): handle is FrameKonvaMap[T] => true;
 </script>
 
-{#if frame.type === FrameType.Rectangle && handleGuard(frame.type, handle)}
-  <FrameRect bind:handle {frame} {handleDragStart} {handleDrag} {handleTransform} />
-{:else if frame.type === FrameType.Image && handleGuard(frame.type, handle)}
-  <FrameImage bind:handle {frame} {handleDragStart} {handleDrag} {handleTransform} />
+{#if frame.type === FrameType.Rectangle}
+  <FrameRect {frame} {handleDrag} {handleTransform} />
+{:else if frame.type === FrameType.Image}
+  <FrameImage {frame} {handleDrag} {handleTransform} />
 {/if}

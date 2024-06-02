@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import type Konva from 'konva';
   import {
     Layer,
@@ -11,17 +11,18 @@
   } from 'svelte-konva';
   import { omit } from 'lodash';
   import { framesStore } from 'src/stores/frames';
+  import { sceneStore } from 'src/stores/scene';
   import { KEYBOARD_SENSITIVITY } from 'src/constants/keyboard-sensitivity';
   import Frame from './frames/Frame.svelte';
   import PropertiesPanel from './properties/PropertiesPanel.svelte';
   import { FrameType } from 'src/enums/frame-type';
 
   $: frames = Object.values($framesStore);
-  let selectedFrameId: number | null = null;
+  // let { hierarchy } = framesStore;
+
   let internalClipboard: (typeof frames)[number] | null = null;
 
-  let stage: Konva.Stage;
-  let transformer: Konva.Transformer;
+  let { stage, transformer, selectedFrameId, moveSelectedFrameToFront } = sceneStore;
 
   const handleAddFrameClick = () => {
     framesStore.addFrame();
@@ -31,98 +32,88 @@
     framesStore.addFrame({ type: FrameType.Image });
   };
 
-  const moveSelectedFrameToFront = () => {
-    stage.findOne(`#${selectedFrameId}`)?.moveToTop();
-    transformer.moveToTop();
-  };
-
-  const updateTransformer = () => {
-    if (!transformer) return;
-
-    const selectedNode = stage.findOne(`#${selectedFrameId}`);
-
-    if (selectedNode) {
-      transformer.nodes([selectedNode]);
-    } else {
-      transformer.nodes([]);
-    }
-  };
-
   const handleStageClick = ({ detail: e }: KonvaMouseEvent) => {
     if (e.target === e.target.getStage()) {
-      selectedFrameId = null;
-      updateTransformer();
+      $selectedFrameId = null;
       return;
     }
 
-    if (e.target.getParent()?.id() === '#transformer') return;
+    let clickableTarget = e.target as Konva.Container | null;
 
-    const id = +e.target.id();
-    selectedFrameId = $framesStore[id] ? id : null;
-    moveSelectedFrameToFront();
-    updateTransformer();
+    while (clickableTarget && !clickableTarget.id()) {
+      clickableTarget = clickableTarget.getParent();
+    }
+
+    if (!clickableTarget || clickableTarget.id() === '#transformer') return;
+
+    const id = +clickableTarget.id();
+    $selectedFrameId = $framesStore[id] ? id : null;
   };
 
   const handleStageResize = ({ detail: e }: KonvaWheelEvent) => {
-    const oldScale = stage.scaleX();
+    const oldScale = $stage!.scaleX();
 
-    const pointer = stage.getPointerPosition()!;
+    const pointer = $stage!.getPointerPosition()!;
     const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale
+      x: (pointer.x - $stage!.x()) / oldScale,
+      y: (pointer.y - $stage!.y()) / oldScale
     };
 
-    const newScale = stage.scaleX() * (e.evt.deltaY > 0 ? 0.9 : 1.1);
-    stage.scale({ x: newScale, y: newScale });
+    const newScale = $stage!.scaleX() * (e.evt.deltaY > 0 ? 0.9 : 1.1);
+    $stage!.scale({ x: newScale, y: newScale });
 
-    stage.position({
+    $stage!.position({
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale
     });
 
-    stage.batchDraw();
+    $stage!.batchDraw();
   };
 
   const handleDeleteFrame = () => {
-    if (!selectedFrameId) return;
+    if (!$selectedFrameId) return;
 
-    framesStore.removeFrame(selectedFrameId);
-    selectedFrameId = null;
-    updateTransformer();
+    framesStore.removeFrame($selectedFrameId);
+    $selectedFrameId = null;
   };
 
   const handleMoveFrame = (dx: number, dy: number) => () => {
-    if (!selectedFrameId) return;
+    if (!$selectedFrameId) return;
 
     moveSelectedFrameToFront();
 
-    framesStore.updateFrame(selectedFrameId, {
-      x: $framesStore[selectedFrameId].x + dx * KEYBOARD_SENSITIVITY.frame,
-      y: $framesStore[selectedFrameId].y + dy * KEYBOARD_SENSITIVITY.frame
+    framesStore.updateFrame($selectedFrameId, {
+      x: $framesStore[$selectedFrameId].x + dx * KEYBOARD_SENSITIVITY.frame,
+      y: $framesStore[$selectedFrameId].y + dy * KEYBOARD_SENSITIVITY.frame
     });
   };
 
   const handleMoveScene = (dx: number, dy: number) => () => {
-    stage.position({
-      x: stage.x() + dx * KEYBOARD_SENSITIVITY.scene,
-      y: stage.y() + dy * KEYBOARD_SENSITIVITY.scene
+    $stage!.position({
+      x: $stage!.x() + dx * KEYBOARD_SENSITIVITY.scene,
+      y: $stage!.y() + dy * KEYBOARD_SENSITIVITY.scene
     });
   };
 
   const handleCopyFrame = () => {
-    if (!selectedFrameId) return;
+    if (!$selectedFrameId) return;
 
-    internalClipboard = $framesStore[selectedFrameId];
+    internalClipboard = $framesStore[$selectedFrameId];
   };
 
   const handlePasteFrame = () => {
     if (!internalClipboard) return;
 
-    const newFrame = { ...omit(internalClipboard, 'id'), ...stage.getRelativePointerPosition()! };
-    selectedFrameId = framesStore.addFrame(newFrame);
-    setTimeout(() => {
-      moveSelectedFrameToFront();
-      updateTransformer();
+    const position = $stage!.getRelativePointerPosition()!;
+    const newFrame = {
+      ...omit(internalClipboard, 'id'),
+      x: position.x - internalClipboard.width / 2,
+      y: position.y - internalClipboard.height / 2
+    };
+
+    const newFrameId = framesStore.addFrame(newFrame);
+    tick().then(() => {
+      $selectedFrameId = newFrameId;
     });
   };
 
@@ -152,12 +143,20 @@
   onMount(() => {
     document.addEventListener('keydown', handleKeyDown);
 
+    framesStore.addFrame();
+    tick().then(() => {
+      framesStore.addFrame({ parent: 1, width: 50, height: 25, backgroundColor: '#00ff00' });
+      tick().then(() => {
+        framesStore.addFrame({ parent: 2, width: 25, height: 12.5, backgroundColor: '#0000ff' });
+      });
+    });
+
     return () => document.removeEventListener('keydown', handleKeyDown);
   });
 </script>
 
 <Stage
-  bind:handle={stage}
+  bind:handle={$stage}
   config={{
     width: window.innerWidth,
     height: window.innerHeight,
@@ -191,8 +190,8 @@
       }}
       on:click={handleAddImageClick}
     />
-    <Transformer bind:handle={transformer} config={{ id: 'transformer' }} />
+    <Transformer bind:handle={$transformer} config={{ id: 'transformer' }} />
   </Layer>
 </Stage>
 
-<PropertiesPanel {selectedFrameId} />
+<PropertiesPanel />

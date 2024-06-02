@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type Konva from 'konva';
   import { Image, type KonvaDragTransformEvent } from 'svelte-konva';
   import type { FrameType } from 'src/enums/frame-type';
   import type { Frame } from 'src/types/frame';
@@ -7,9 +6,7 @@
   import { framesStore } from 'src/stores/frames';
 
   export let frame: Frame<FrameType.Image>;
-  export let handle: Konva.Image;
 
-  export let handleDragStart: (e: KonvaDragTransformEvent) => void;
   export let handleDrag: (e: KonvaDragTransformEvent) => void;
   export let handleTransform: (e: KonvaDragTransformEvent) => void;
 
@@ -33,7 +30,6 @@
 </script>
 
 <Image
-  bind:handle
   config={{
     id: frame.id.toString(),
     x: frame.x,
@@ -45,7 +41,6 @@
     image,
     draggable: true
   }}
-  on:dragstart={handleDragStart}
   on:dragmove={handleDrag}
   on:dragend={handleDrag}
   on:transform={handleTransform}

@@ -17,7 +17,13 @@ export const DEFAULT_RECT_FRAME: Frame<FrameType.Rectangle> = {
   ...SHARED_FRAME_PROPS,
   type: FrameType.Rectangle,
   backgroundColor: '#ff0000',
-  textContent: ''
+  textContent: '',
+  textColor: '#000',
+  fontSize: 16,
+  padding: 10,
+  textAlignment: 'center',
+  textVerticalAlignment: 'middle',
+  textStyle: []
 };
 
 export const DEFAULT_IMAGE_FRAME: Frame<FrameType.Image> = {

@@ -1,10 +1,15 @@
-import type Konva from 'konva';
 import { FrameType } from 'src/enums/frame-type';
 import type { KeyOf } from './utils';
 
 export type RectangleFrame = {
   backgroundColor: string;
   textContent: string;
+  textColor: string;
+  fontSize: number;
+  padding: number;
+  textAlignment: 'left' | 'center' | 'right' | 'justify';
+  textVerticalAlignment: 'top' | 'middle' | 'bottom';
+  textStyle: Array<'bold' | 'italic' | 'underline' | 'line-through'>;
 };
 
 export type ImageFrame = {
@@ -16,11 +21,6 @@ type FrameTypeMap = {
   [FrameType.Image]: ImageFrame;
 };
 
-export type FrameKonvaMap = {
-  [FrameType.Rectangle]: Konva.Rect;
-  [FrameType.Image]: Konva.Image;
-};
-
 export type Frame<Type extends FrameType = FrameType.Rectangle> = {
   id: number;
   type: Type;
@@ -30,7 +30,7 @@ export type Frame<Type extends FrameType = FrameType.Rectangle> = {
   height: number;
   rotation: number;
   borderRadius: number;
-  parent?: HTMLElement | null;
+  parent?: number | null;
 } & FrameTypeMap[Type];
 
 export type FrameByType<Type extends FrameType> = Type extends Type ? Frame<Type> : never;

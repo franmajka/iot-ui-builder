@@ -52,7 +52,7 @@
         aria-haspopup="dialog"
       />
       <div class="alpha" />
-      <div class="color" style:background={hex} />
+      <div class="color shadow-center-lg shadow-black/30" style:background={hex} />
     </div>
 
     <input
@@ -77,6 +77,7 @@
 
   input[type='text'] {
     font-family: monospace;
+    line-height: var(--input-size, 25px);
   }
 
   input[type='color'] {
