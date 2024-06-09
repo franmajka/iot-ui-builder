@@ -4,7 +4,6 @@
   import {
     Layer,
     Stage,
-    Text,
     Transformer,
     type KonvaMouseEvent,
     type KonvaWheelEvent
@@ -15,22 +14,18 @@
   import { KEYBOARD_SENSITIVITY } from 'src/constants/keyboard-sensitivity';
   import Frame from './frames/Frame.svelte';
   import PropertiesPanel from './properties/PropertiesPanel.svelte';
-  import { FrameType } from 'src/enums/frame-type';
+  import MenuPanel from './menu/MenuPanel.svelte';
+  import type { DragEventHandler } from 'svelte/elements';
+  import type { FrameT } from 'src/types/frame';
+  import { defaultFrameMap } from 'src/constants/default-frame';
+  import SceneActions from './actions/SceneActions.svelte';
+  import { saveStore } from 'src/stores/save';
 
   $: frames = Object.values($framesStore);
-  // let { hierarchy } = framesStore;
 
   let internalClipboard: (typeof frames)[number] | null = null;
 
   let { stage, transformer, selectedFrameId, moveSelectedFrameToFront } = sceneStore;
-
-  const handleAddFrameClick = () => {
-    framesStore.addFrame();
-  };
-
-  const handleAddImageClick = () => {
-    framesStore.addFrame({ type: FrameType.Image });
-  };
 
   const handleStageClick = ({ detail: e }: KonvaMouseEvent) => {
     if (e.target === e.target.getStage()) {
@@ -69,6 +64,30 @@
 
     $stage!.batchDraw();
   };
+
+  const handleDrop: DragEventHandler<HTMLDivElement> = e => {
+    const data = e.dataTransfer?.getData('text/plain');
+    if (!data) return;
+
+    const bareFrame = JSON.parse(data) as Partial<FrameT> & Required<Pick<FrameT, 'type'>>;
+
+    const frame = {
+      ...defaultFrameMap[bareFrame.type],
+      ...bareFrame
+    };
+
+    const { left, top } = e.currentTarget.getBoundingClientRect();
+
+    const newFrameId = framesStore.addFrame({
+      ...frame,
+      x: e.clientX - left - $stage!.x() - frame.width / 2,
+      y: e.clientY - top - $stage!.y() - frame.height / 2
+    });
+
+    tick().then(() => {
+      $selectedFrameId = newFrameId;
+    });
+  }
 
   const handleDeleteFrame = () => {
     if (!$selectedFrameId) return;
@@ -117,13 +136,19 @@
     });
   };
 
+  const handleSaveScene = (e: KeyboardEvent) => {
+    e.preventDefault();
+    saveStore.save();
+  };
+
   const handleKeyDown = (e: KeyboardEvent) => {
     if (document.activeElement !== document.body) return;
 
     const keyHandlers: Record<string, (e: KeyboardEvent) => void> = e.ctrlKey
       ? {
           c: handleCopyFrame,
-          v: handlePasteFrame
+          v: handlePasteFrame,
+          s: handleSaveScene,
         }
       : {
           Delete: handleDeleteFrame,
@@ -155,43 +180,29 @@
   });
 </script>
 
-<Stage
-  bind:handle={$stage}
-  config={{
-    width: window.innerWidth,
-    height: window.innerHeight,
-    draggable: true
-  }}
-  on:click={handleStageClick}
-  on:wheel={handleStageResize}
->
-  <Layer>
-    {#each frames as frame (frame.id)}
-      <Frame {frame} />
-    {/each}
+<MenuPanel />
 
-    <Text
-      config={{
-        x: 100,
-        y: 100,
-        text: 'Add Frame!',
-        fontSize: 30,
-        fill: 'black'
-      }}
-      on:click={handleAddFrameClick}
-    />
-    <Text
-      config={{
-        x: 100,
-        y: 200,
-        text: 'Add Image!',
-        fontSize: 30,
-        fill: 'black'
-      }}
-      on:click={handleAddImageClick}
-    />
-    <Transformer bind:handle={$transformer} config={{ id: 'transformer' }} />
-  </Layer>
-</Stage>
+<div on:drop={handleDrop} on:dragover|preventDefault>
+  <Stage
+    bind:handle={$stage}
+    config={{
+      width: window.innerWidth - 256,
+      height: window.innerHeight,
+      draggable: true
+    }}
+    on:click={handleStageClick}
+    on:wheel={handleStageResize}
+  >
+    <Layer>
+      {#each frames as frame (frame.id)}
+        <Frame {frame} />
+      {/each}
+
+      <Transformer bind:handle={$transformer} config={{ id: 'transformer' }} />
+    </Layer>
+  </Stage>
+</div>
 
 <PropertiesPanel />
+
+<SceneActions />

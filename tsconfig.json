@@ -18,5 +18,6 @@
     "baseUrl": "./"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
+  "exclude": ["node_modules/**/*", "backend/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

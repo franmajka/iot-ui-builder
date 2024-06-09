@@ -1,6 +1,10 @@
 import { FrameType } from 'src/enums/frame-type';
 import type { KeyOf } from './utils';
 
+export type FrameHierarchy = {
+  [id: number]: FrameHierarchy;
+};
+
 export type RectangleFrame = {
   backgroundColor: string;
   textContent: string;

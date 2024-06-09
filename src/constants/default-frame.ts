@@ -16,11 +16,11 @@ export const SHARED_FRAME_PROPS = {
 export const DEFAULT_RECT_FRAME: Frame<FrameType.Rectangle> = {
   ...SHARED_FRAME_PROPS,
   type: FrameType.Rectangle,
-  backgroundColor: '#ff0000',
+  backgroundColor: '#cccccc',
   textContent: '',
-  textColor: '#000',
+  textColor: '#000000',
   fontSize: 16,
-  padding: 10,
+  padding: 0,
   textAlignment: 'center',
   textVerticalAlignment: 'middle',
   textStyle: []
