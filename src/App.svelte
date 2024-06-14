@@ -1,7 +1,14 @@
 <script lang="ts">
-  import Scene from './components/Scene.svelte';
+import Scene from './components/Scene.svelte';
+  import TemplatePicker from './components/TemplatePicker.svelte';
+  import { currentRoute } from './stores/router';
+
 </script>
 
-<main class="h-screen flex justify-center items-center">
+{#if $currentRoute === '/'}
+  <TemplatePicker />
+{:else if new RegExp('^/?template/.+?/?$').test($currentRoute)}
   <Scene />
-</main>
+{:else}
+  <p>404 Not Found</p>
+{/if}

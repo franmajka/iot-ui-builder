@@ -20,7 +20,7 @@
       content: HierarchyTab
     },
     {
-      title: 'CSS',
+      title: 'Custom CSS',
       icon: faCss3,
       content: CssTab
     }
@@ -28,7 +28,7 @@
 
 </script>
 
-<div class="w-64 h-screen shadow-center-2xl bg-white">
+<div class="w-96 h-screen shadow-center-2xl bg-white">
   <Tabs
     tabStyle="none"
     contentClass="bg-transparent"
@@ -38,13 +38,13 @@
     divider={false}
   >
     {#each tabsConfig as tab }
-      <TabItem class='w-full' open={tab.open}>
+      <TabItem class='w-full h-full' open={tab.open}>
         <div slot="title">
           <Fa icon={tab.icon} class="block w-full" />
         </div>
         <svelte:component this={tab.content} />
       </TabItem>
-      <Tooltip>{tab.title}</Tooltip>
+      <Tooltip class="z-50">{tab.title}</Tooltip>
     {/each}
   </Tabs>
 </div>

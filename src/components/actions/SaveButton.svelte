@@ -1,10 +1,11 @@
 <script lang="ts">
   import { faCheck, faSave, faXmark } from '@fortawesome/free-solid-svg-icons';
   import { Button, Spinner, Tooltip } from 'flowbite-svelte';
-  import { saveStore } from 'src/stores/save';
+  import { saveRequest } from 'src/api/save';
+  import { createAsyncRequestStore } from 'src/stores/async-requests';
   import Fa from 'svelte-fa';
 
-  let { isLoading, isResponseSuccess, save } = saveStore;
+  let { isLoading, isResponseSuccess, sendRequest: save } = createAsyncRequestStore(saveRequest, { shouldResetResponseIn: 2000 });
 </script>
 
 <Button

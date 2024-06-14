@@ -3,7 +3,6 @@
   import type { FrameType } from 'src/enums/frame-type';
   import type { Frame } from 'src/types/frame';
   import errorImage from 'src/assets/error-image.svg';
-  import { framesStore } from 'src/stores/frames';
 
   export let frame: Frame<FrameType.Image>;
 
@@ -19,7 +18,6 @@
       loadedSrc = src;
       image.src = src;
       image.onload = () => {
-        framesStore.updateFrame(frame.id, { width: image.width, height: image.height });
         resolve(image);
       };
       image.onerror = () => (image.src = errorImage);

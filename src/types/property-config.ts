@@ -30,5 +30,6 @@ export type PropertyConfig<
   min?: number;
   max?: number;
   step?: number;
+  placeholder?: string;
   className?: string;
 };

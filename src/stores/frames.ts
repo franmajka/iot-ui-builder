@@ -6,8 +6,8 @@ import { FrameType } from 'src/enums/frame-type';
 import { round } from 'lodash';
 
 const createFramesStore = () => {
-  const { subscribe, update } = writable<Record<number, FrameT>>({});
-  const { subscribe: subscribeHierarchy, update: updateHierarchy } = writable<FrameHierarchy>({});
+  const { subscribe, update, set: setFrames } = writable<Record<number, FrameT>>({});
+  const { subscribe: subscribeHierarchy, update: updateHierarchy, set: setHierarchy } = writable<FrameHierarchy>({});
 
   const idGenerator = getIdGenerator();
 
@@ -109,12 +109,20 @@ const createFramesStore = () => {
     });
   }
 
+
   return {
     subscribe,
+    set: (values: Parameters<typeof setFrames>[0]) => {
+      setFrames(values);
+
+      const newStartId = Math.max(...Object.keys(values).map(Number));
+      idGenerator.setStartId(isFinite(newStartId) ? newStartId : 0);
+    },
     addFrame,
     updateFrame,
     removeFrame,
-    hierarchy: { subscribe: subscribeHierarchy }
+    setHierarchy,
+    hierarchy: { subscribe: subscribeHierarchy, set: setHierarchy },
   };
 };
 

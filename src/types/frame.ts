@@ -20,9 +20,23 @@ export type ImageFrame = {
   src: string;
 };
 
+export type ButtonFrame = RectangleFrame;
+
+export type RangeFrame = {
+  min: number;
+  max: number;
+  step: number;
+  thumbColor: string;
+  thumbSize: number;
+  trackColor: string;
+  value: string;
+}
+
 type FrameTypeMap = {
   [FrameType.Rectangle]: RectangleFrame;
   [FrameType.Image]: ImageFrame;
+  [FrameType.Range]: RangeFrame;
+  [FrameType.Button]: ButtonFrame;
 };
 
 export type Frame<Type extends FrameType = FrameType.Rectangle> = {
@@ -34,6 +48,7 @@ export type Frame<Type extends FrameType = FrameType.Rectangle> = {
   height: number;
   rotation: number;
   borderRadius: number;
+  className: string;
   parent?: number | null;
 } & FrameTypeMap[Type];
 

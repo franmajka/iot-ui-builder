@@ -6,6 +6,7 @@
   import { framesStore } from 'src/stores/frames';
   import FrameRect from './FrameRect.svelte';
   import FrameImage from './FrameImage.svelte';
+  import FrameRange from './FrameRange.svelte';
 
   export let frame: FrameByType<Type>;
 
@@ -30,8 +31,10 @@
   }, 0);
 </script>
 
-{#if frame.type === FrameType.Rectangle}
+{#if frame.type === FrameType.Rectangle || frame.type === FrameType.Button}
   <FrameRect {frame} {handleDrag} {handleTransform} />
 {:else if frame.type === FrameType.Image}
   <FrameImage {frame} {handleDrag} {handleTransform} />
+{:else if frame.type === FrameType.Range}
+  <FrameRange {frame} {handleDrag} {handleTransform} />
 {/if}

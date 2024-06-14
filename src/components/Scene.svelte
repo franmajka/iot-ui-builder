@@ -19,12 +19,17 @@
   import type { FrameT } from 'src/types/frame';
   import { defaultFrameMap } from 'src/constants/default-frame';
   import SceneActions from './actions/SceneActions.svelte';
-  import { saveStore } from 'src/stores/save';
+  import { Spinner } from 'flowbite-svelte';
+  import { createAsyncRequestStore } from 'src/stores/async-requests';
+  import { getTemplateRequest } from 'src/api/templates';
+  import { saveRequest } from 'src/api/save';
 
   $: frames = Object.values($framesStore);
 
   let internalClipboard: (typeof frames)[number] | null = null;
 
+  let { isLoading, isResponseSuccess, sendRequest: getTemplate } = createAsyncRequestStore(getTemplateRequest);
+  let { sendRequest: saveTemplate } = createAsyncRequestStore(saveRequest, { shouldResetResponseIn: 2000 });
   let { stage, transformer, selectedFrameId, moveSelectedFrameToFront } = sceneStore;
 
   const handleStageClick = ({ detail: e }: KonvaMouseEvent) => {
@@ -138,7 +143,7 @@
 
   const handleSaveScene = (e: KeyboardEvent) => {
     e.preventDefault();
-    saveStore.save();
+    saveTemplate();
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -166,43 +171,50 @@
   };
 
   onMount(() => {
+    getTemplate();
+
     document.addEventListener('keydown', handleKeyDown);
 
-    framesStore.addFrame();
-    tick().then(() => {
-      framesStore.addFrame({ parent: 1, width: 50, height: 25, backgroundColor: '#00ff00' });
-      tick().then(() => {
-        framesStore.addFrame({ parent: 2, width: 25, height: 12.5, backgroundColor: '#0000ff' });
-      });
-    });
-
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      $stage = undefined;
+      $transformer = undefined;
+      $selectedFrameId = null;
+      document.removeEventListener('keydown', handleKeyDown)
+    };
   });
 </script>
 
-<MenuPanel />
+<main class="h-screen flex justify-center items-center">
+  {#if $isLoading}
+    <div class="text-2xl"><Spinner size={32} /></div>
+  {:else if !$isResponseSuccess}
+    <div class="text-2xl">Template not found</div>
+  {:else}
+    <MenuPanel />
 
-<div on:drop={handleDrop} on:dragover|preventDefault>
-  <Stage
-    bind:handle={$stage}
-    config={{
-      width: window.innerWidth - 256,
-      height: window.innerHeight,
-      draggable: true
-    }}
-    on:click={handleStageClick}
-    on:wheel={handleStageResize}
-  >
-    <Layer>
-      {#each frames as frame (frame.id)}
-        <Frame {frame} />
-      {/each}
+    <div on:drop={handleDrop} on:dragover|preventDefault>
+      <Stage
+        bind:handle={$stage}
+        config={{
+          width: window.innerWidth - 384,
+          height: window.innerHeight,
+          draggable: true
+        }}
+        on:click={handleStageClick}
+        on:wheel={handleStageResize}
+      >
+        <Layer>
+          {#each frames as frame (frame.id)}
+            <Frame {frame} />
+          {/each}
 
-      <Transformer bind:handle={$transformer} config={{ id: 'transformer' }} />
-    </Layer>
-  </Stage>
-</div>
+          <Transformer bind:handle={$transformer} config={{ id: 'transformer' }} />
+        </Layer>
+      </Stage>
+    </div>
 
-<PropertiesPanel />
+    <PropertiesPanel />
 
-<SceneActions />
+    <SceneActions />
+  {/if}
+</main>

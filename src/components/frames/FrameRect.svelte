@@ -5,7 +5,7 @@
   import { sceneStore } from 'src/stores/scene';
   import { tick } from 'svelte';
 
-  export let frame: Frame<FrameType.Rectangle>;
+  export let frame: Omit<Frame<FrameType.Rectangle>, 'type'>;
 
   export let handleDrag: (e: KonvaDragTransformEvent) => void;
   export let handleTransform: (e: KonvaDragTransformEvent) => void;

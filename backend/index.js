@@ -1,15 +1,20 @@
 import express from 'express';
 import cors from 'cors';
-import { loadTemplates } from './load-templates.js';
 import { handleSave } from './handle-save.js';
+import { handleGetTemplate } from './handle-get-template.js';
+import { handleGetTemplates } from './handle-get-templates.js';
 
-const app = express().use(express.json()).use(cors());
+const app = express()
+  .use(express.json())
+  .use(cors())
+  .use(express.static('templates'))
+  .use(express.static('public'));
 const port = 3000
 
-app.post('/', handleSave);
+app.post('/:templateId', handleSave);
 
-const maxTemplateId = await loadTemplates();
-console.log(`Max template id: ${maxTemplateId}`);
+app.get('/', handleGetTemplates);
+app.get('/:id', handleGetTemplate);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

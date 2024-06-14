@@ -35,6 +35,16 @@ export const blocksTabConfig = [
     },
     src: '/src/assets/text.png'
   },
+  {
+    title: 'Button',
+    frame: { type: FrameType.Button },
+    src: '/src/assets/button.png'
+  },
+  {
+    title: 'Range',
+    frame: { type: FrameType.Range },
+    src: '/src/assets/range.png'
+  },
 ] satisfies Array<{
   title: string;
   frame: Partial<FrameT>;
