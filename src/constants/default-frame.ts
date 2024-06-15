@@ -62,9 +62,24 @@ export const DEFAULT_BUTTON_FRAME: Frame<FrameType.Button> = {
   borderRadius: 4,
 };
 
+export const DEFAULT_SWITCH_FRAME: Frame<FrameType.Switch> = {
+  ...SHARED_FRAME_PROPS,
+  height: 25,
+  width: 50,
+  borderRadius: 9999,
+  type: FrameType.Switch,
+  trackInactiveColor: '#cccccc',
+  trackActiveColor: '#de99e0',
+  thumbInactiveColor: '#ffffff',
+  thumbActiveColor: '#9C27B0',
+  padding: 4,
+  value: '',
+};
+
 export const defaultFrameMap = {
   [FrameType.Rectangle]: DEFAULT_RECT_FRAME,
   [FrameType.Image]: DEFAULT_IMAGE_FRAME,
   [FrameType.Range]: DEFAULT_RANGE_FRAME,
   [FrameType.Button]: DEFAULT_BUTTON_FRAME,
-};
+  [FrameType.Switch]: DEFAULT_SWITCH_FRAME,
+} satisfies Record<FrameType, unknown>;

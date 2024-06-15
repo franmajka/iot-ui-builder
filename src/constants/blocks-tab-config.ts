@@ -45,6 +45,11 @@ export const blocksTabConfig = [
     frame: { type: FrameType.Range },
     src: '/src/assets/range.png'
   },
+  {
+    title: 'Switch',
+    frame: { type: FrameType.Switch },
+    src: '/src/assets/switch.png'
+  },
 ] satisfies Array<{
   title: string;
   frame: Partial<FrameT>;

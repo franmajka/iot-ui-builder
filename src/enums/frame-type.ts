@@ -3,4 +3,5 @@ export enum FrameType {
   Image = 'image',
   Range = 'range',
   Button = 'button',
+  Switch = 'switch'
 }

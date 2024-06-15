@@ -22,6 +22,15 @@ export type ImageFrame = {
 
 export type ButtonFrame = RectangleFrame;
 
+export type SwitchFrame = {
+  value: string;
+  trackInactiveColor: string;
+  trackActiveColor: string;
+  thumbInactiveColor: string;
+  thumbActiveColor: string;
+  padding: number;
+}
+
 export type RangeFrame = {
   min: number;
   max: number;
@@ -37,6 +46,7 @@ type FrameTypeMap = {
   [FrameType.Image]: ImageFrame;
   [FrameType.Range]: RangeFrame;
   [FrameType.Button]: ButtonFrame;
+  [FrameType.Switch]: SwitchFrame;
 };
 
 export type Frame<Type extends FrameType = FrameType.Rectangle> = {

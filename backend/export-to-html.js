@@ -171,12 +171,55 @@ const rangeToHTML = ({ frame, globalStyle }) => {
   `;
 }
 
+const switchToHTML = ({ frame }) => {
+  const {
+    value,
+    thumbInactiveColor,
+    thumbActiveColor,
+    trackInactiveColor,
+    trackActiveColor,
+    height,
+    width,
+    padding,
+    borderRadius,
+  } = frame;
+
+  const thumbSize = height - 2 * padding;
+  const shift = width - 2 * padding - thumbSize;
+  const css = {
+    '--thumb-inactive-color': thumbInactiveColor,
+    '--thumb-active-color': thumbActiveColor,
+    '--track-inactive-color': trackInactiveColor,
+    '--track-active-color': trackActiveColor,
+    '--thumb-size': `${thumbSize}px`,
+    '--shift': `${shift}px`,
+    '--padding': `${padding}px`,
+    '--border-radius': `${borderRadius}px`,
+  };
+  const match = value.match(/(?<type>\w+?)-(?<pin>\w+?)/);
+  return `
+    <label class="_switch" style="${sharedPropsToCSS(frame)};${inlineObjectToCss(css)}">
+      <input
+        type="checkbox"
+        ${match ? `
+        data-source="input"
+        data-type="${match.groups.type}"
+        data-pin="${match.groups.pin}"
+        ` : ''
+        }
+      >
+      <span class="_slider"></span>
+    </label>
+  `;
+}
+
 const frameToHTML = ({ frame, childrenHTML, globalStyle }) => {
   const frameTypeToHTML = {
     image: imageToHTML,
     rectangle: rectangleToHTML,
     range: rangeToHTML,
     button: rectangleToHTML,
+    switch: switchToHTML,
   };
 
   if (frame.type in frameTypeToHTML) {
@@ -243,6 +286,52 @@ export const exportToHTML = ({ hierarchy, frames, customCss }) => {
     'button:active': {
       'box-shadow': '6px 6px 0 0 rgba(0, 0, 0, 0.1)',
       transform: 'translateY(3px)',
+    },
+    '._switch input': {
+      opacity: 0,
+      width: 0,
+      height: 0,
+    },
+    '._slider': {
+      position: 'absolute',
+      cursor: 'pointer',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      'border-radius': 'var(--border-radius)',
+      'background-color': 'var(--track-inactive-color)',
+      transition: 'all 200ms ease-in',
+    },
+    '._slider:before': {
+      position: 'absolute',
+      content: '""',
+      height: 'var(--thumb-size)',
+      width: 'var(--thumb-size)',
+      left: 'var(--padding)',
+      top: 'var(--padding)',
+      'border-radius': 'var(--border-radius)',
+      'background-color': 'var(--thumb-inactive-color)',
+      transition: 'all 200ms ease-in',
+    },
+    '._slider:hover:before': {
+      'box-shadow': '0 0 0 calc(3px + var(--padding)) rgb(from var(--thumb-inactive-color) r g b / 60%)',
+    },
+    '._switch input:focus + ._slider:before': {
+      'box-shadow': '0 0 0 calc(4px + var(--padding)) rgb(from var(--thumb-inactive-color) r g b / 60%)',
+    },
+    'input:checked + ._slider:hover:before': {
+      'box-shadow': '0 0 0 calc(3px + var(--padding)) rgb(from var(--thumb-active-color) r g b / 60%)',
+    },
+    '._switch input:focus:checked + ._slider:before': {
+      'box-shadow': '0 0 0 calc(4px + var(--padding)) rgb(from var(--thumb-active-color) r g b / 60%)',
+    },
+    '._switch input:checked + ._slider': {
+      'background-color': 'var(--track-active-color)',
+    },
+    '._switch input:checked + ._slider:before': {
+      transform: 'translateX(var(--shift))',
+      'background-color': 'var(--thumb-active-color)',
     },
   };
 

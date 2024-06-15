@@ -1,4 +1,6 @@
 <script lang="ts" generics="Type extends FrameType">
+  import FrameSwitch from './FrameSwitch.svelte';
+
   import { debounce } from 'lodash';
   import { type KonvaDragTransformEvent } from 'svelte-konva';
   import { FrameType } from 'src/enums/frame-type';
@@ -37,4 +39,6 @@
   <FrameImage {frame} {handleDrag} {handleTransform} />
 {:else if frame.type === FrameType.Range}
   <FrameRange {frame} {handleDrag} {handleTransform} />
+{:else if frame.type === FrameType.Switch}
+  <FrameSwitch {frame} {handleDrag} {handleTransform} />
 {/if}
